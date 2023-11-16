@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <title>Cash Verifier</title>
+</head>
+<body>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-12 p-2">
+        <div class="border rounded m-3 p-2">
+          <h1>Cash Verifier</h1>
+          <input type="text" id="price" placeholder="Price" class="mt-sm-2 w-100 m-1">
+          <input type="text" id="cash" placeholder="Cash" class="mt-sm-2 w-100 m-1">
+          <button onclick="checkCashRegister()" class="btn btn-outline-success mt-sm-2 w-100 m-1">Check Cash Register</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result" class="row justify-content-center"></div>
+  <div id="change" class="row justify-content-center"></div>
+
+  <script>
+    function checkCashRegister() {
+      function checkCashRegister(price, cash, cid) {
+        const currencyUnit = [
+          ["PENNY", 0.01],
+          ["NICKEL", 0.05],
+          ["DIME", 0.1],
+          ["QUARTER", 0.25],
+          ["ONE", 1],
+          ["FIVE", 5],
+          ["TEN", 10],
+          ["TWENTY", 20],
+          ["ONE HUNDRED", 100]
+        ];
+
+        let changeDue = cash - price;
+        let changeArray = [];
+        let totalCID = 0;
+
+        for (let i = 0; i < cid.length; i++) {
+          totalCID += cid[i][1];
+        }
+
+        totalCID = parseFloat(totalCID.toFixed(2));
+
+        if (totalCID < changeDue) {
+          return { status: "INSUFFICIENT_FUNDS", change: [] };
+        } else if (totalCID === changeDue) {
+          return { status: "CLOSED", change: cid };
+        } else {
+          for (let i = currencyUnit.length - 1; i >= 0; i--) {
+            const coinName = currencyUnit[i][0];
+            const coinValue = currencyUnit[i][1];
+            const availableCoins = cid[i][1];
+
+            let numberOfCoins = Math.floor(changeDue / coinValue);
+            let returnedAmount = numberOfCoins * coinValue;
+            returnedAmount = parseFloat(returnedAmount.toFixed(2));
+
+            if (numberOfCoins > 0 && returnedAmount <= availableCoins) {
+              changeArray.push([coinName, returnedAmount]);
+              changeDue -= returnedAmount;
+              changeDue = parseFloat(changeDue.toFixed(2));
+            } else if (numberOfCoins > 0 && returnedAmount > availableCoins) {
+              changeArray.push([coinName, availableCoins]);
+              changeDue -= availableCoins;
+              changeDue = parseFloat(changeDue.toFixed(2));
+            }
+          }
+        }
+
+        if (changeDue > 0) {
+          return { status: "INSUFFICIENT_FUNDS", change: [] };
+        }
+
+        return { status: "OPEN", change: changeArray };
+      }
+
+      const price = parseFloat(document.getElementById("price").value);
+      const cash = parseFloat(document.getElementById("cash").value);
+
+      const result = checkCashRegister(price, cash, [
+        ["PENNY", 1.01],
+        ["NICKEL", 2.05],
+        ["DIME", 3.1],
+        ["QUARTER", 4.25],
+        ["ONE", 90],
+        ["FIVE", 55],
+        ["TEN", 20],
+        ["TWENTY", 60],
+        ["ONE HUNDRED", 100]
+      ]);
+
+      const resultElement = document.getElementById("result");
+      const changeElement = document.getElementById("change");
+
+      if (result.status === "INSUFFICIENT_FUNDS" || result.status === "CLOSED") {
+        resultElement.textContent = "Status: "+ result.status;
+        resultElement.style.color = 'red';
+      } else {
+        resultElement.textContent = "Status: " + result.status;
+        resultElement.style.color = 'green';
+        changeElement.textContent = "Change: " + JSON.stringify(result.change);
+        
+      }
+
+      resultElement.innerHTML = `${statusMessage}<br><br>${changeMessage}`;
+    }
+  </script>
+
+</body>
+</html>
