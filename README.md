@@ -142,4 +142,4 @@ checkCashRegister(19.5, 20, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], [
 
 status: "OPEN", change: [["QUARTER", 0.5]]
 ```
-<a href="https://a-marvulle.github.io/CaesarsCipher13/" target=_blank>Pages</a>
+<a href="https://a-marvulle.github.io/cash/" target=_blank>Pages</a>
